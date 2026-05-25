@@ -1,8 +1,16 @@
 import os
+import sys
 from dotenv import load_dotenv
+
+# Ensure root directory is in path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from google.adk.agents.llm_agent import Agent
 from google.adk.tools.mcp_tool import McpToolset, StdioConnectionParams
+from google.adk.tools import AgentTool
 from mcp import StdioServerParameters
+
+from tools.whatsapp import whatsapp_agent
 
 load_dotenv()
 
@@ -26,12 +34,13 @@ openalgo_mcp_toolset = McpToolset(
     )
 )
 
-# 2. Create the Agent
+# 2. Create the Root Agent
 # This global 'root_agent' is automatically discovered by ADK CLI (adk web/run).
+# It can delegate WhatsApp tasks to the whatsapp_agent via AgentTool.
 root_agent = Agent(
     model=AGENT_MODEL,
     name='root_agent',
     description='A specialized trading assistant for the Indian stock market.',
-    instruction='You are an expert algorithmic trading assistant. Use the OpenAlgo tools to help the user with market data, order management, and position tracking.',
-    tools=[openalgo_mcp_toolset]
+    instruction='You are an expert algorithmic trading assistant. Use the OpenAlgo tools for trading and the whatsapp_agent for sending notifications or alerts to the user.',
+    tools=[openalgo_mcp_toolset, AgentTool(agent=whatsapp_agent)]
 )

@@ -6,6 +6,7 @@
 
 - **AI-Native Trading**: Interact with the Indian markets using natural language via a Gemini-powered agent.
 - **Unified Broker Access**: Powered by **OpenAlgo**, providing a standardized API for 30+ Indian brokers (Angel One, Dhan, Fyers, etc.).
+- **WhatsApp Integration**: Send real-time notifications and alerts via WhatsApp using the **OpenAlgo WhatsApp Bridge**.
 - **Interactive Web UI**: A modern web interface for chatting with your trading assistant, monitoring funds, and managing orders.
 - **Fast & Stable**: Uses a local stdio bridge for high-performance tool execution without OAuth complexity.
 - **Persistent Sessions**: Powered by SQLite to maintain conversation history and state across CLI and Web UI sessions.
@@ -23,6 +24,12 @@
 - **Python 3.13+** (managed via `uv` recommended).
 - **OpenAlgo**: A running instance of OpenAlgo (local or remote).
 - **OpenAlgo Bridge**: The `mcpserver.py` script from the OpenAlgo repository.
+- **WhatsApp Bridge (Optional)**: If you want WhatsApp alerts, install and start the [OpenAlgo WhatsApp Bridge](https://www.openalgo.in/wabridge):
+  ```bash
+  npm install -g wabridge
+  wabridge         # Link your account via QR code
+  wabridge start   # Start the bridge server (port 3000)
+  ```
 
 ### 2. Installation
 Clone the repository and sync dependencies:
@@ -43,16 +50,17 @@ Ensure you provide:
 ### 4. Running the Workspace
 
 #### Option A: Interactive Web UI (Recommended)
-Start the visual trading assistant:
+Start the visual trading assistant and discover all agents in the workspace:
 ```bash
-uv run adk web trader --port 8000
+uv run adk web . --port 8000
 ```
-Then open [http://localhost:8000](http://localhost:8000) in your browser.
+Then open [http://localhost:8000](http://localhost:8000). You can switch between **trader** and **whatsapp_bot** in the agent selection dropdown.
 
 #### Option B: Terminal (Quick Chat)
 Start a conversation directly in your shell:
 ```bash
-uv run adk run trader
+uv run adk run trader          # For trading
+uv run adk run whatsapp_bot    # For direct WhatsApp interaction
 ```
 
 ## 📖 Further Reading

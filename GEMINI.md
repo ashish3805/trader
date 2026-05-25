@@ -5,9 +5,12 @@ This project is an AI-native algorithmic trading workspace for the Indian stock 
 ## Architectural Standards
 
 ### 1. Agent Discovery
-- The primary agent is defined as `root_agent` in `trader/agent.py`.
-- Always use the ADK CLI (`adk web trader`, `adk run trader`) for execution.
-- Point the CLI to the `trader/` directory so it can discover the agent and load the local `.env` automatically.
+- The workspace follows the ADK multi-agent directory pattern.
+- **Trader Agent**: Defined in `trader/agent.py`.
+- **WhatsApp Bot**: Defined in `whatsapp_bot/agent.py`.
+- Run `adk web .` from the root to discover all agents in the workspace.
+- The `root_agent` in `trader/agent.py` can also delegate to the `whatsapp_agent` via `AgentTool`.
+- Always use the ADK CLI for execution.
 
 ### 2. OpenAlgo Connectivity
 - We use the **Local stdio bridge** method for maximum stability.
@@ -41,7 +44,9 @@ uv run adk run trader
 See `.env.sample` for the required environment variables.
 
 ## Project Structure
-- `trader/`: Core agent code and persistent storage.
+- `trader/`: Main trading agent definition.
+- `whatsapp_bot/`: Standalone WhatsApp interaction agent.
+- `tools/`: Shared tool libraries and sub-agent definitions (e.g., `whatsapp.py`).
 - `docs/`: Supplemental documentation and guides.
 - `.agents/skills/`: Installed MCP skills for technical analysis.
 - `skills-lock.json`: Lock file for MCP skills.

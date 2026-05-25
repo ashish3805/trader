@@ -1918,6 +1918,7 @@ dependencies = [
     { name = "scipy" },
     { name = "seaborn" },
     { name = "streamlit" },
+    { name = "wabridge" },
     { name = "websocket-client" },
     { name = "yfinance" },
 ]
@@ -1940,6 +1941,7 @@ requires-dist = [
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "streamlit", specifier = ">=1.57.0" },
+    { name = "wabridge", specifier = ">=0.2.0" },
     { name = "websocket-client", specifier = ">=1.9.0" },
     { name = "yfinance", specifier = ">=1.3.0" },
 ]
@@ -2003,6 +2005,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f6/b1/8e7077a8641086aea449e1b5752a570f1b5906c64e0a33cd6d93b63a066b/uvicorn-0.47.0.tar.gz", hash = "sha256:7c9a0ea1a9414106bbab7324609c162d8fa0cdcdcb703060987269d77c7bb533", size = 90582, upload-time = "2026-05-14T18:16:54.455Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/15/41/ac2dfdbc1f60c7af4f994c7a335cfa7040c01642b605d65f611cecc2a1e4/uvicorn-0.47.0-py3-none-any.whl", hash = "sha256:2c5715bc12d1892d84752049f400cd1c3cb018514967fdfeb97640443a6a9432", size = 71301, upload-time = "2026-05-14T18:16:51.762Z" },
+]
+
+[[package]]
+name = "wabridge"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/79/a3323c533134c41045dabdf04780e2902cb40697d7d4d6dda0dc1057a500/wabridge-0.2.0.tar.gz", hash = "sha256:78323f448fac24953ae16608b3cb10ee4b58414d1f8647bddb050f417179853e", size = 6717, upload-time = "2026-02-18T10:44:50.496Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ba/3b/626160bda7444c638835e4918a9f7df63d66963b2326b7b70356b2f5973d/wabridge-0.2.0-py3-none-any.whl", hash = "sha256:0890454ad2b594946e325d764ecdd403aff0af05d53a66d67e208dfbbe9b9ef5", size = 8086, upload-time = "2026-02-18T10:44:49.106Z" },
 ]
 
 [[package]]
