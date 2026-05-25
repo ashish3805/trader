@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "custom-indicator": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/custom-indicator/SKILL.md",
+      "computedHash": "cd9a45d4792f4a85323afd98328848b4b47c006becb2f06783a5bd9c7f68e8ea"
+    },
+    "indicator-chart": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/indicator-chart/SKILL.md",
+      "computedHash": "b163190657772ae50c5737e70a08fbfafa767152a7957fd0e51f23ab48453036"
+    },
+    "indicator-dashboard": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/indicator-dashboard/SKILL.md",
+      "computedHash": "06e63035c974dab0d490a215ca5893d8756ca9aa4bc35d772ebb7fb308230bbd"
+    },
+    "indicator-expert": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/indicator-expert/SKILL.md",
+      "computedHash": "355877a5a0263d5354ce281c1e80e7bef172db5ca9abedd5b502cc5ce836effe"
+    },
+    "indicator-scanner": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/indicator-scanner/SKILL.md",
+      "computedHash": "e28aaf7db337296bed345c76ed795b64a46c51bb3cda6e3d316369ef69a6fda7"
+    },
+    "indicator-setup": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/indicator-setup/SKILL.md",
+      "computedHash": "22b1c057cdff3b217a27cf1a0d7e7e0bed80c3ee737bff526a140ed43ee0d57a"
+    },
+    "live-feed": {
+      "source": "marketcalls/openalgo-indicator-skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/live-feed/SKILL.md",
+      "computedHash": "ee0a1de3cf64a2829903d8d991401c23dcdd064589612e83effcd397bc544a93"
+    }
+  }
+}
