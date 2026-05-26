@@ -6,7 +6,7 @@
 
 - **AI-Native Trading**: Interact with the Indian markets using natural language via a Gemini-powered agent.
 - **Unified Broker Access**: Powered by **OpenAlgo**, providing a standardized API for 30+ Indian brokers (Angel One, Dhan, Fyers, etc.).
-- **WhatsApp Integration**: Send real-time notifications and alerts via WhatsApp using the **OpenAlgo WhatsApp Bridge**.
+- **Automated WhatsApp Bot**: A full duplex WhatsApp interface that allows you to receive notifications and send trading commands directly from your phone.
 - **Interactive Web UI**: A modern web interface for chatting with your trading assistant, monitoring funds, and managing orders.
 - **Fast & Stable**: Uses a local stdio bridge for high-performance tool execution without OAuth complexity.
 - **Persistent Sessions**: Powered by SQLite to maintain conversation history and state across CLI and Web UI sessions.
@@ -24,17 +24,13 @@
 - **Python 3.13+** (managed via `uv` recommended).
 - **OpenAlgo**: A running instance of OpenAlgo (local or remote).
 - **OpenAlgo Bridge**: The `mcpserver.py` script from the OpenAlgo repository.
-- **WhatsApp Bridge (Optional)**: If you want WhatsApp alerts, install and start the [OpenAlgo WhatsApp Bridge](https://www.openalgo.in/wabridge):
-  ```bash
-  npm install -g wabridge
-  wabridge         # Link your account via QR code
-  wabridge start   # Start the bridge server (port 3000)
-  ```
+- **Node.js**: Required for the WhatsApp Provider.
 
 ### 2. Installation
 Clone the repository and sync dependencies:
 ```bash
 uv sync
+npm install
 ```
 
 ### 3. Configuration
@@ -50,18 +46,26 @@ Ensure you provide:
 ### 4. Running the Workspace
 
 #### Option A: Interactive Web UI (Recommended)
-Start the visual trading assistant and discover all agents in the workspace:
+Start the visual trading assistant:
 ```bash
 uv run adk web . --port 8000
 ```
-Then open [http://localhost:8000](http://localhost:8000). You can switch between **trader** and **whatsapp_bot** in the agent selection dropdown.
+Then open [http://localhost:8000](http://localhost:8000). You can switch between **trader** and **whatsapp_bot** in the dropdown.
 
-#### Option B: Terminal (Quick Chat)
-Start a conversation directly in your shell:
-```bash
-uv run adk run trader          # For trading
-uv run adk run whatsapp_bot    # For direct WhatsApp interaction
-```
+#### Option B: Automated WhatsApp Bot (Full Duplex)
+1. **Start the Provider** (Handles WhatsApp connectivity):
+   ```bash
+   # Run once to link your account via QR code
+   node tools/whatsapp_provider.js
+   
+   # After linking, run in background
+   nohup node tools/whatsapp_provider.js > provider.log 2>&1 &
+   ```
+2. **Start the ADK Bridge** (Handles agent logic):
+   ```bash
+   nohup uv run python whatsapp_bridge.py > bridge.log 2>&1 &
+   ```
+Now you can message yourself on WhatsApp to interact with the agent!
 
 ## 📖 Further Reading
 

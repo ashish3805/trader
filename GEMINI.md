@@ -8,6 +8,9 @@ This project is an AI-native algorithmic trading workspace for the Indian stock 
 - The workspace follows the ADK multi-agent directory pattern.
 - **Trader Agent**: Defined in `trader/agent.py`.
 - **WhatsApp Bot**: Defined in `whatsapp_bot/agent.py`.
+- **WhatsApp Automation**:
+    - `tools/whatsapp_provider.js`: A custom Node.js listener that forwards incoming WhatsApp messages (including self-messages) to the bridge.
+    - `whatsapp_bridge.py`: An automated webhook service that links WhatsApp JIDs to ADK sessions and runs the agent logic.
 - Run `adk web .` from the root to discover all agents in the workspace.
 - The `root_agent` in `trader/agent.py` can also delegate to the `whatsapp_agent` via `AgentTool`.
 - Always use the ADK CLI for execution.

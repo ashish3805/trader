@@ -1,0 +1,36 @@
+{
+  "name": "trader",
+  "version": "1.0.0",
+  "description": "`trader` is an advanced algorithmic trading workspace designed for the Indian stock market (NSE/BSE). Built on the **Google Agent Development Kit (ADK)** and the **OpenAlgo** ecosystem, it allows you to build, test, and deploy trading strategies using natural language and AI agents.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start:provider": "node tools/whatsapp_provider.js",
+    "start:bridge": "uv run python whatsapp_bridge.py",
+    "start:bot": "npm run start:provider & npm run start:bridge",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashish3805/trader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/ashish3805/trader/issues"
+  },
+  "homepage": "https://github.com/ashish3805/trader#readme",
+  "dependencies": {
+    "@hono/node-server": "^2.0.4",
+    "axios": "^1.8.1",
+    "baileys": "^6.7.16",
+    "hono": "^4.12.23",
+    "pino": "^10.3.1",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

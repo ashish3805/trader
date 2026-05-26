@@ -16,6 +16,14 @@ wheels/
 /.idea/trader.iml
 /.idea/vcs.xml
 
+# Databases
 **/**.session.db
 session.db
 *.db
+
+# Logs
+*.log
+nohup.out
+
+# Node.js
+node_modules/

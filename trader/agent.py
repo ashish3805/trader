@@ -28,13 +28,13 @@ MCP_SERVER_PATH = os.getenv("MCP_SERVER_PATH")
 openalgo_mcp_toolset = McpToolset(
     connection_params=StdioConnectionParams(
         server_params=StdioServerParameters(
-            command="python",
+            command=sys.executable,
             args=[MCP_SERVER_PATH, OPENALGO_API_KEY, OPENALGO_HOST]
         )
     )
 )
 
-# 2. Create the Root Agent
+# 3. Create the Root Agent
 # This global 'root_agent' is automatically discovered by ADK CLI (adk web/run).
 # It can delegate WhatsApp tasks to the whatsapp_agent via AgentTool.
 root_agent = Agent(
@@ -44,3 +44,4 @@ root_agent = Agent(
     instruction='You are an expert algorithmic trading assistant. Use the OpenAlgo tools for trading and the whatsapp_agent for sending notifications or alerts to the user.',
     tools=[openalgo_mcp_toolset, AgentTool(agent=whatsapp_agent)]
 )
+
