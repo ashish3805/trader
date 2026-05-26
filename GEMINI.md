@@ -49,6 +49,7 @@ See `.env.sample` for the required environment variables.
 ## Project Structure
 - `trader/`: Main trading agent definition.
 - `whatsapp_bot/`: Standalone WhatsApp interaction agent.
+- `whatsapp_provider/`: Node.js WhatsApp connection service (the "Radio").
 - `tools/`: Shared tool libraries and sub-agent definitions (e.g., `whatsapp.py`).
 - `docs/`: Supplemental documentation and guides.
 - `.agents/skills/`: Installed MCP skills for technical analysis.

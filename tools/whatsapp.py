@@ -3,7 +3,15 @@ from wabridge import WABridge
 
 # Initialize WABridge
 # Default base_url is http://localhost:3000
-wa = WABridge()
+WA_BRIDGE_URL = os.getenv("WA_BRIDGE_URL", "http://localhost:3000")
+
+# Parse host and port from URL
+from urllib.parse import urlparse
+parsed_url = urlparse(WA_BRIDGE_URL)
+wa_host = parsed_url.hostname or "localhost"
+wa_port = parsed_url.port or 3000
+
+wa = WABridge(host=wa_host, port=wa_port)
 
 def send_whatsapp_message(phone: str, message: str) -> dict:
     """

@@ -28,7 +28,7 @@ MCP_SERVER_PATH = os.getenv("MCP_SERVER_PATH")
 openalgo_mcp_toolset = McpToolset(
     connection_params=StdioConnectionParams(
         server_params=StdioServerParameters(
-            command=sys.executable,
+            command="python3",
             args=[MCP_SERVER_PATH, OPENALGO_API_KEY, OPENALGO_HOST]
         )
     )

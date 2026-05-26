@@ -7,9 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "start:provider": "node tools/whatsapp_provider.js",
-    "start:bridge": "uv run python whatsapp_bridge.py",
-    "start:bot": "npm run start:provider & npm run start:bridge",
+    "start": "node whatsapp_provider.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

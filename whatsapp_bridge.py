@@ -33,6 +33,23 @@ runner = Runner(
     session_service=session_service
 )
 
+def run_agent_sync(user_id: str, session_id: str, new_message: types.Content):
+    """
+    Wrapper to run the agent synchronously (for use with to_thread).
+    """
+    final_response = ""
+    for event in runner.run(
+        user_id=user_id,
+        session_id=session_id,
+        new_message=new_message
+    ):
+        if event.is_final_response():
+            if hasattr(event.content, 'parts') and event.content.parts:
+                final_response = event.content.parts[0].text
+            else:
+                final_response = str(event.content)
+    return final_response
+
 async def process_and_reply(jid: str, text: str):
     """
     Processes the message through the ADK agent and sends the final response to WhatsApp.
@@ -74,18 +91,11 @@ async def process_and_reply(jid: str, text: str):
             parts=[types.Part(text=text)]
         )
 
-        final_response = ""
-        for event in runner.run(
-            user_id=user_id,
-            session_id=session_id,
-            new_message=new_message
-        ):
-            if event.is_final_response():
-                # Extract text from content parts
-                if hasattr(event.content, 'parts') and event.content.parts:
-                    final_response = event.content.parts[0].text
-                else:
-                    final_response = str(event.content)
+        # Run the agent in a separate thread to avoid blocking the event loop
+        # and to provide a more stable execution environment for the stdio bridge.
+        final_response = await asyncio.to_thread(
+            run_agent_sync, user_id, session_id, new_message
+        )
 
         if final_response:
             print(f"[*] Sending reply to {target}: {final_response[:50]}...")
@@ -97,7 +107,11 @@ async def process_and_reply(jid: str, text: str):
         import traceback
         traceback.print_exc()
         print(f"[!] Error processing message for {jid}: {str(e)}")
-        wa.send(target, f"Sorry, I encountered an error processing your request: {str(e)}")
+        # Try to send error to user
+        try:
+            wa.send(target, f"Sorry, I encountered an error processing your request: {str(e)}")
+        except:
+            pass
 
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):

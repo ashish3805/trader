@@ -55,17 +55,37 @@ Then open [http://localhost:8000](http://localhost:8000). You can switch between
 #### Option B: Automated WhatsApp Bot (Full Duplex)
 1. **Start the Provider** (Handles WhatsApp connectivity):
    ```bash
+   cd whatsapp_provider
+   npm install
    # Run once to link your account via QR code
-   node tools/whatsapp_provider.js
+   node whatsapp_provider.js
    
    # After linking, run in background
-   nohup node tools/whatsapp_provider.js > provider.log 2>&1 &
+   nohup node whatsapp_provider.js > ../provider.log 2>&1 &
+   cd ..
    ```
 2. **Start the ADK Bridge** (Handles agent logic):
    ```bash
    nohup uv run python whatsapp_bridge.py > bridge.log 2>&1 &
    ```
 Now you can message yourself on WhatsApp to interact with the agent!
+
+#### Option C: Docker Deployment (Containerized)
+You can run the entire bot system using Docker Compose:
+1. **Build and Start**:
+   ```bash
+   docker-compose up --build -d
+   ```
+2. **Link WhatsApp**:
+   If it's your first time, you need to scan the QR code from the container logs:
+   ```bash
+   docker logs -f whatsapp-provider
+   ```
+3. **Check Status**:
+   ```bash
+   docker-compose ps
+   ```
+The bot uses your local `.env` file and persists WhatsApp authentication in a Docker volume.
 
 ## 📖 Further Reading
 
