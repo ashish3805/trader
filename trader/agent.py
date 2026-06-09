@@ -23,25 +23,32 @@ OPENALGO_HOST = os.getenv("OPENALGO_HOST", "https://trade.uacinfo.com")
 # Path to the local OpenAlgo MCP bridge, now externalized to .env
 MCP_SERVER_PATH = os.getenv("MCP_SERVER_PATH")
 
-# 1. Initialize OpenAlgo MCP Toolset using the LOCAL BRIDGE
-# This spawns the bridge as a subprocess for fast and stable tool execution.
-openalgo_mcp_toolset = McpToolset(
-    connection_params=StdioConnectionParams(
-        server_params=StdioServerParameters(
-            command="python3",
-            args=[MCP_SERVER_PATH, OPENALGO_API_KEY, OPENALGO_HOST]
+def get_openalgo_mcp_toolset():
+    """Returns a freshly initialized McpToolset with increased timeout."""
+    return McpToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command=sys.executable,
+                args=["-u", MCP_SERVER_PATH, OPENALGO_API_KEY, OPENALGO_HOST]
+            ),
+            timeout=30.0  # Increased from default 5.0s for production stability
         )
     )
-)
 
 # 3. Create the Root Agent
-# This global 'root_agent' is automatically discovered by ADK CLI (adk web/run).
-# It can delegate WhatsApp tasks to the whatsapp_agent via AgentTool.
+# This global 'root_agent' is automatically discovered by ADK CLI.
+# The tools include the Toolset directly for robust session management.
 root_agent = Agent(
     model=AGENT_MODEL,
     name='root_agent',
     description='A specialized trading assistant for the Indian stock market.',
-    instruction='You are an expert algorithmic trading assistant. Use the OpenAlgo tools for trading and the whatsapp_agent for sending notifications or alerts to the user.',
-    tools=[openalgo_mcp_toolset, AgentTool(agent=whatsapp_agent)]
+    instruction='''You are an expert algorithmic trading assistant. 
+You have access to OpenAlgo tools for trading (placing orders, checking funds, getting quotes, etc.) and a whatsapp_agent for sending notifications.
+Always use the tools provided to get real-time data or perform actions.''',
+    tools=[get_openalgo_mcp_toolset(), AgentTool(agent=whatsapp_agent)]
 )
+
+# Keep factory function for compatibility with latest bridge refactor
+async def create_root_agent_async():
+    return root_agent
 

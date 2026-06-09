@@ -1,0 +1,38 @@
+services:
+  whatsapp-provider:
+    build:
+      context: ./whatsapp_provider
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - whatsapp_auth:/app/auth
+    environment:
+      - PORT=3000
+      - WEBHOOK_URL=http://whatsapp-bridge:6000/webhook
+      - AUTH_DIR=/app/auth
+    restart: unless-stopped
+
+  whatsapp-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6000:6000"
+    volumes:
+      - ./trader:/app/trader
+      # Mount the MCP server script from host
+      - ${MCP_SERVER_PATH}:/app/mcp/mcpserver.py:ro
+    environment:
+      - WA_BRIDGE_URL=http://whatsapp-provider:3000
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENALGO_API_KEY=${OPENALGO_API_KEY}
+      - OPENALGO_HOST=${OPENALGO_HOST}
+      - MCP_SERVER_PATH=/app/mcp/mcpserver.py
+      - AGENT_MODEL=${AGENT_MODEL}
+    depends_on:
+      - whatsapp-provider
+    restart: unless-stopped
+
+volumes:
+  whatsapp_auth:

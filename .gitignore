@@ -8,7 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
-**/**.env
+.env*
+**/*.env*
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/.gitignore
 /.idea/misc.xml
@@ -24,6 +25,14 @@ session.db
 # Logs
 *.log
 nohup.out
+
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# ADK runtime directory
+.adk/
+**/.adk/
 
 # Node.js
 node_modules/

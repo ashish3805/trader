@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(ROOT_DIR)
 
-from trader.agent import root_agent
 from tools.whatsapp import wa
 from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService
@@ -20,136 +19,106 @@ load_dotenv()
 app = FastAPI(title="WhatsApp ADK Bridge")
 
 # 1. Initialize the Session Service
-# We point it to the same session.db used by the Web UI for unified context.
-# Using sqlite+aiosqlite for async support required by ADK
 DB_PATH = os.path.join(ROOT_DIR, "trader", "session.db")
 session_service = DatabaseSessionService(db_url=f"sqlite+aiosqlite:///{DB_PATH}")
 
-# 2. Initialize the Runner
-# This will orchestrate the agent execution.
-runner = Runner(
-    agent=root_agent,
-    app_name="trader",
-    session_service=session_service
-)
+# 2. Global runner placeholder for lazy initialization
+_runner = None
 
-def run_agent_sync(user_id: str, session_id: str, new_message: types.Content):
-    """
-    Wrapper to run the agent synchronously (for use with to_thread).
-    """
-    final_response = ""
-    for event in runner.run(
-        user_id=user_id,
-        session_id=session_id,
-        new_message=new_message
-    ):
-        if event.is_final_response():
-            if hasattr(event.content, 'parts') and event.content.parts:
-                final_response = event.content.parts[0].text
-            else:
-                final_response = str(event.content)
-    return final_response
+async def get_runner():
+    global _runner
+    if _runner is None:
+        from trader.agent import create_root_agent_async
+        agent = await create_root_agent_async()
+        _runner = Runner(
+            agent=agent,
+            app_name="trader",
+            session_service=session_service
+        )
+    return _runner
 
 async def process_and_reply(jid: str, text: str):
     """
     Processes the message through the ADK agent and sends the final response to WhatsApp.
     """
-    # Use the JID as the session_id to maintain per-user context
     session_id = f"wa_{jid.split('@')[0]}"
     user_id = jid
-
-    # Extract plain number for wabridge.send (it prefers 919876543210 format)
     target = jid.split('@')[0] if '@s.whatsapp.net' in jid else jid
 
-    print(f"[*] Processing message from {jid} (Session: {session_id}): {text}")
+    print(f"[*] Processing: {text} from {target}")
 
     try:
-        # Check if session exists
-        session = await session_service.get_session(
-            app_name="trader",
-            user_id=user_id,
-            session_id=session_id
-        )
+        # Session Management
+        session = await session_service.get_session(app_name="trader", user_id=user_id, session_id=session_id)
+        if not session:
+            await session_service.create_session(app_name="trader", user_id=user_id, session_id=session_id)
         
-        if session:
-            print(f"[*] Found existing session for {jid}")
-        else:
-            print(f"[*] Creating new session for {jid}...")
-            session = await session_service.create_session(
-                app_name="trader",
-                user_id=user_id,
-                session_id=session_id
-            )
-            print(f"[*] Successfully created session for {jid}")
-
-        # Small delay to ensure DB consistency (async sqlite quirk)
         await asyncio.sleep(0.5)
 
-        # Wrap the text in the expected types.Content format
-        new_message = types.Content(
-            role="user",
-            parts=[types.Part(text=text)]
-        )
+        new_message = types.Content(role="user", parts=[types.Part(text=text)])
+        runner = await get_runner()
+        
+        final_response = ""
+        async for event in runner.run_async(
+            user_id=user_id,
+            session_id=session_id,
+            new_message=new_message
+        ):
+            # Log Events
+            if calls := event.get_function_calls():
+                for call in calls:
+                    print(f"[🛠️ Tool Call] {call.name}({call.args})")
+            
+            if resps := event.get_function_responses():
+                for resp in resps:
+                    r_content = getattr(resp, 'response', str(resp))
+                    resp_str = str(r_content)[:100] + "..." if len(str(r_content)) > 100 else str(r_content)
+                    print(f"[🔧 Tool Response] {resp.name}: {resp_str}")
 
-        # Run the agent in a separate thread to avoid blocking the event loop
-        # and to provide a more stable execution environment for the stdio bridge.
-        final_response = await asyncio.to_thread(
-            run_agent_sync, user_id, session_id, new_message
-        )
+            if event.is_final_response():
+                if hasattr(event.content, 'parts') and event.content.parts:
+                    final_response = event.content.parts[0].text
+                else:
+                    final_response = str(event.content)
+            
+            if event.usage_metadata:
+                usage = event.usage_metadata
+                print(f"[📊 Usage] Total Tokens: {usage.total_token_count}")
 
         if final_response:
-            print(f"[*] Sending reply to {target}: {final_response[:50]}...")
+            print(f"[*] Replying to {target}...")
+            # Using a custom timeout for wa.send to avoid bridge timeouts
             wa.send(target, final_response)
         else:
-            print(f"[!] No final response generated for {jid}")
+            print(f"[!] No response for {target}")
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        print(f"[!] Error processing message for {jid}: {str(e)}")
-        # Try to send error to user
+        print(f"[!] Error: {str(e)}")
         try:
-            wa.send(target, f"Sorry, I encountered an error processing your request: {str(e)}")
+            wa.send(target, f"⚠️ Error: {str(e)}")
         except:
             pass
 
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
-    """
-    Endpoint to receive incoming messages from WABridge.
-    """
     try:
         payload = await request.json()
-        print(f"[*] Received webhook payload: {payload}")
-        
-        # Payload format from WABridge: {"event": "message", "data": {...}}
         if payload.get("event") == "message":
             msg_data = payload.get("data")
-            
-            # Extract sender and text
             sender_jid = msg_data.get("from")
             text = msg_data.get("body")
-            
-            print(f"[*] Message from: {sender_jid}, Body: {text}")
-            
             if sender_jid and text:
-                # Process in background to respond to webhook immediately
                 background_tasks.add_task(process_and_reply, sender_jid, text)
                 return {"status": "queued"}
-            else:
-                print("[!] Missing sender_jid or text in payload data")
-        else:
-            print(f"[*] Ignored event type: {payload.get('event')}")
-            
     except Exception as e:
-        print(f"[!] Error in webhook endpoint: {str(e)}")
-            
+        print(f"[!] Webhook error: {str(e)}")
     return {"status": "ignored"}
 
 @app.get("/status")
 async def status():
-    return {"status": "online", "agent": root_agent.name}
+    return {"status": "online"}
 
 if __name__ == "__main__":
-    # Start the server on port 6000
     uvicorn.run(app, host="0.0.0.0", port=6000)
